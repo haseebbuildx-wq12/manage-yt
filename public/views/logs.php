@@ -1,0 +1,1 @@
+<div class="card"><h2>System Logs</h2><table><tr><th>Time</th><th>Level</th><th>Event</th><th>Message</th></tr><?php foreach($logs as $l):?><tr><td><?=e($l['created_at'])?></td><td><span class="badge"><?=e($l['level'])?></span></td><td><?=e($l['event'])?></td><td><?=e($l['message'])?></td></tr><?php endforeach;?></table></div>

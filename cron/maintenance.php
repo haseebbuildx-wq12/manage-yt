@@ -1,0 +1,2 @@
+<?php
+require_once __DIR__.'/common.php';cron_start('maintenance',900);$cutoff=gmdate('Y-m-d H:i:s',time()-86400*30);$db->exec('DELETE FROM system_logs WHERE created_at<?',[$cutoff]);$db->exec('DELETE FROM cron_locks WHERE expires_at<?',[now_sql()]);$tmp=$config['upload']['temp_dir'];if(is_dir($tmp)){foreach(glob($tmp.'/*')?:[] as $f){if(is_file($f)&&filemtime($f)<time()-86400)@unlink($f);}}$services->log('INFO','maintenance.complete','Maintenance completed');
