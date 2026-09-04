@@ -17,15 +17,9 @@ try {
 
     echo "STEP 3: ROUTER AUTOLOAD WORKING<br>";
 
-    $router->get('/', function () {
-        echo "STEP 4: ROUTE REGISTER WORKING<br>";
-    });
+    $router->get('/', [\App\Controllers\HomeController::class, 'index']);
 
-    echo "STEP 5: ROUTE CREATED WORKING<br>";
-
-    $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
-
-    echo "STEP 6: ROUTER DISPATCH WORKING<br>";
+    echo "STEP 4: ROUTE REGISTER WORKING<br>";
 
 } catch (\Throwable $e) {
 
