@@ -1,2 +1,0 @@
-<?php
-require_once __DIR__.'/common.php';$key=(string)($_GET['key']??'');if(!hash_equals((string)$config['app']['cron_secret'],$key)){http_response_code(403);exit('Forbidden');}$job=$_GET['job']??'';$map=['scan'=>__DIR__.'/scan_drive.php','queue'=>__DIR__.'/process_queue.php','retry'=>__DIR__.'/retry_failed.php','refresh'=>__DIR__.'/refresh_tokens.php','maintenance'=>__DIR__.'/maintenance.php'];if(!isset($map[$job])){http_response_code(400);exit('Unknown job');}require $map[$job];

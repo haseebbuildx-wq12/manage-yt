@@ -1,2 +1,0 @@
-<?php
-require_once __DIR__.'/common.php';cron_start('retry_failed',600);$max=(int)$config['upload']['max_retries'];$rows=$db->all("SELECT id,retry_count FROM videos WHERE status='Retry' AND retry_count<=? AND (next_retry_at IS NULL OR next_retry_at<=?) LIMIT 100",[$max,now_sql()]);foreach($rows as $r){$db->exec("UPDATE videos SET status='Pending',next_retry_at=NULL,updated_at=? WHERE id=? AND status='Retry'",[now_sql(),$r['id']]);}$services->log('INFO','retry.processed','Retry queue promoted',['count'=>count($rows)]);
