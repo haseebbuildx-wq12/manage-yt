@@ -15,7 +15,17 @@ try {
 
     $router = new \App\Core\Router();
 
-    echo "STEP 3: ROUTER CLASS WORKING<br>";
+    echo "STEP 3: ROUTER AUTOLOAD WORKING<br>";
+
+    $router->get('/', function () {
+        echo "STEP 4: ROUTE REGISTER WORKING<br>";
+    });
+
+    echo "STEP 5: ROUTE CREATED WORKING<br>";
+
+    $router->dispatch($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+
+    echo "STEP 6: ROUTER DISPATCH WORKING<br>";
 
 } catch (\Throwable $e) {
 
@@ -27,5 +37,4 @@ try {
     echo "Line: " . $e->getLine() . "\n\n";
     echo htmlspecialchars($e->getTraceAsString());
     echo "</pre>";
-
 }
