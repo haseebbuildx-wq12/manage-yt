@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+// DEVELOPMENT ONLY — Show PHP errors on screen
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\Router;
@@ -25,4 +30,7 @@ $router->post('/logout', [AuthController::class, 'logout']);
 
 $router->get('/', [DashboardController::class, 'index']);
 
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$router->dispatch(
+    $_SERVER['REQUEST_METHOD'],
+    $_SERVER['REQUEST_URI']
+);
