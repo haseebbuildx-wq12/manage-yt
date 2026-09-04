@@ -11,8 +11,21 @@ require __DIR__ . '/app/bootstrap.php';
 
 echo "STEP 2: BOOTSTRAP WORKING<br>";
 
-use App\Core\Router;
+try {
 
-$router = new Router();
+    $router = new \App\Core\Router();
 
-echo "STEP 3: ROUTER AUTOLOAD WORKING<br>";
+    echo "STEP 3: ROUTER CLASS WORKING<br>";
+
+} catch (\Throwable $e) {
+
+    echo "<h2>ERROR FOUND</h2>";
+
+    echo "<pre>";
+    echo "Message: " . htmlspecialchars($e->getMessage()) . "\n\n";
+    echo "File: " . htmlspecialchars($e->getFile()) . "\n";
+    echo "Line: " . $e->getLine() . "\n\n";
+    echo htmlspecialchars($e->getTraceAsString());
+    echo "</pre>";
+
+}
