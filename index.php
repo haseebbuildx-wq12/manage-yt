@@ -10,3 +10,9 @@ echo "STEP 1: PHP WORKING<br>";
 require __DIR__ . '/app/bootstrap.php';
 
 echo "STEP 2: BOOTSTRAP WORKING<br>";
+
+use App\Core\Router;
+
+$router = new Router();
+
+echo "STEP 3: ROUTER AUTOLOAD WORKING<br>";
