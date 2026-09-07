@@ -1,6 +1,0 @@
-{
-  "name": "mccm/multi-channel-content-manager",
-  "require": {
-    "php": ">=8.2"
-  }
-}
