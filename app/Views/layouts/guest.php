@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="/assets/css/app.css">
+<link rel="stylesheet" href="/assets/css/components/buttons.css">
+<link rel="stylesheet" href="/assets/css/components/cards.css">
+<link rel="stylesheet" href="/assets/css/components/forms.css">
+<link rel="stylesheet" href="/assets/css/components/modals.css">
+<link rel="stylesheet" href="/assets/css/components/tables.css">
+<link rel="stylesheet" href="/assets/css/components/toasts.css">
+<link rel="stylesheet" href="/assets/css/utilities/helpers.css">
 <meta charset="UTF-8">
 <title><?= e($title ?? 'Login') ?></title>
 <link rel="stylesheet" href="/assets/css/app.css">

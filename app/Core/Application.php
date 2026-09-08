@@ -27,6 +27,15 @@ final class Application {
         $router->post('/login', [AuthController::class, 'login']);
         $router->post('/logout', [AuthController::class, 'logout']);
         $router->get('/dashboard', [DashboardController::class, 'index']);
+        $router->get('/channels', [\App\Controllers\ChannelController::class, 'index']);
+        $router->get('/videos', [\App\Controllers\VideoController::class, 'index']);
+        $router->get('/drive', [\App\Controllers\DriveController::class, 'index']);
+        $router->get('/analytics', [\App\Controllers\AnalyticsController::class, 'index']);
+        $router->get('/research', [\App\Controllers\ResearchController::class, 'index']);
+        $router->get('/settings', [\App\Controllers\SettingsController::class, 'index']);
+        $router->get('/forgot-password', function () {
+    (new \App\Controllers\AuthController())->view('auth/forgot-password', ['title' => 'Forgot Password'], 'guest');
+});
 
         $response = $router->dispatch($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/');
         if (is_string($response)) echo htmlspecialchars($response, ENT_QUOTES, 'UTF-8');

@@ -1,7 +1,13 @@
 <?php
 declare(strict_types=1);
 namespace App\Controllers;
+
 use App\Core\Controller;
+use App\Middleware\AuthMiddleware;
+
 final class VideoController extends Controller {
-    // TODO: Implement VideoController endpoints in the designated project phase.
+    public function index(): void {
+        AuthMiddleware::check();
+        $this->view('videos/index', ['title' => 'Videos'], 'app');
+    }
 }

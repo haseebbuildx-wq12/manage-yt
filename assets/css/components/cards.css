@@ -1,1 +1,7 @@
-/* TODO: Modular styles for components/cards.css */
+.card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.card-title { font-size:16px; font-weight:600; margin:0; }
+.stat-card { background:var(--surface); border:1px solid #252e47; border-radius:14px; padding:18px; }
+.stat-card .label { color:var(--muted); font-size:13px; margin:0; }
+.stat-card .value { font-size:28px; font-weight:700; margin:8px 0 0; }
+.empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
+.empty-state h3 { color:var(--text); margin-bottom:6px; }

@@ -1,1 +1,11 @@
-/* TODO: Modular styles for utilities/helpers.css */
+.badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; background:var(--surface-2); color:var(--muted); }
+.badge-success { background:rgba(34,197,94,.15); color:#4ade80; }
+.badge-warning { background:rgba(234,179,8,.15); color:#fbbf24; }
+.badge-danger { background:rgba(239,68,68,.15); color:#f87171; }
+.text-muted { color:var(--muted); }
+.flex-between { display:flex; align-items:center; justify-content:space-between; }
+.mt-16 { margin-top:16px; }
+.mb-16 { margin-bottom:16px; }
+.pagination { display:flex; gap:6px; margin-top:16px; }
+.pagination a, .pagination span { padding:6px 12px; border-radius:8px; border:1px solid #252e47; color:var(--text); text-decoration:none; font-size:13px; }
+.pagination .active { background:var(--accent); border-color:var(--accent); }
