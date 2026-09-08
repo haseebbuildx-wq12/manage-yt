@@ -23,11 +23,7 @@ final class GoogleOAuthService {
         if ($scopes) $client->setScopes($scopes);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
-<<<<<<< HEAD
-        // $client->setIncludeGrantedScopes(true);
-=======
-        $client->setIncludeGrantedScopes(true);
->>>>>>> 067a99341dd5b6ec8afa469d8b52f9ad0d07508c
+        //   $client->setIncludeGrantedScopes(true);
         return $client;
     }
 
