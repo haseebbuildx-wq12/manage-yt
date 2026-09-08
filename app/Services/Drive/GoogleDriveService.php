@@ -21,8 +21,8 @@ final class GoogleDriveService {
     public static function make(): self { return new self(GoogleTokenService::make()); }
 
     private function driveClient(array $googleAccount): Drive {
-        return new Drive($this->tokens->clientFor($googleAccount));
-    }
+    return new Drive($this->tokens->driveClientFor($googleAccount));
+}
 
     public function createFolder(array $googleAccount, string $name, ?string $parentDriveId = null): string {
         $drive = $this->driveClient($googleAccount);

@@ -57,7 +57,37 @@ final class GoogleTokenService {
             explode(' ', $tokens['scope'] ?? '')
         );
     }
+    public function isDriveTokenExpired(array $account): bool {
+    if (empty($account['drive_token_expiry'])) return true;
+    return strtotime($account['drive_token_expiry']) <= time() + 60;
+    }
 
+    public function driveClientFor(array $account): Client {
+    if ($this->isDriveTokenExpired($account)) {
+        if (empty($account['drive_refresh_token_encrypted'])) {
+            throw new \RuntimeException('Drive access ke liye reconnect zaroori hai.');
+        }
+        $client = GoogleOAuthService::client();
+        $refreshToken = Encryption::decrypt($account['drive_refresh_token_encrypted']);
+        $tokens = $client->fetchAccessTokenWithRefreshToken($refreshToken);
+        if (isset($tokens['error'])) {
+            throw new \RuntimeException('Drive refresh token invalid. Reconnect required.');
+        }
+        $expiry = date('Y-m-d H:i:s', time() + (int) ($tokens['expires_in'] ?? 3600));
+        $this->repository->updateDriveTokens(
+            (int) $account['id'],
+            Encryption::encrypt($tokens['access_token']),
+            isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null,
+            $expiry
+        );
+        $client->setAccessToken(['access_token' => $tokens['access_token']]);
+        return $client;
+    }
+
+    $client = GoogleOAuthService::client();
+    $client->setAccessToken(['access_token' => Encryption::decrypt($account['drive_access_token_encrypted'])]);
+    return $client;
+    }
     public function invalidateConnection(int $accountId): void {
         $this->repository->updateStatus($accountId, 'needs_reconnect');
     }

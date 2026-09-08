@@ -42,32 +42,35 @@ public function callback(): void {
     $expiry = date('Y-m-d H:i:s', time() + (int) ($tokens['expires_in'] ?? 3600));
     $scopes = explode(' ', $tokens['scope'] ?? '');
 
-    if ($state === 'step1') {
-        $profile = $result['profile'];
-        $existing = $repo->findByUserAndGoogleId((int) $_SESSION['user_id'], $profile['id']);
+if ($state === 'step1') {
+    $profile = $result['profile'];
+    $existing = $repo->findByUserAndGoogleId((int) $_SESSION['user_id'], $profile['id']);
 
-        if ($existing) {
-            $repo->updateTokens((int) $existing['id'], Encryption::encrypt($tokens['access_token']),
-                isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null, $expiry, $scopes);
-            $_SESSION['pending_google_account_id'] = $existing['id'];
-        } else {
-            if (empty($tokens['refresh_token'])) {
-                header('Location: /channels?google_error=no_refresh_token');
-                exit;
-            }
-            $id = $repo->create([
-                'user_id' => $_SESSION['user_id'], 'google_account_id' => $profile['id'], 'email' => $profile['email'],
-                'access_token_encrypted' => Encryption::encrypt($tokens['access_token']),
-                'refresh_token_encrypted' => Encryption::encrypt($tokens['refresh_token']),
-                'token_expiry' => $expiry, 'scopes' => $scopes, 'status' => 'connected',
-            ]);
-            $_SESSION['pending_google_account_id'] = $id;
+    if ($existing) {
+        $repo->updateDriveTokens((int) $existing['id'], Encryption::encrypt($tokens['access_token']),
+            isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null, $expiry);
+        $_SESSION['pending_google_account_id'] = $existing['id'];
+    } else {
+        if (empty($tokens['refresh_token'])) {
+            header('Location: /channels?google_error=no_refresh_token');
+            exit;
         }
-
-        // Ab dusra consent step: YouTube scope alag se maango.
-        header('Location: ' . GoogleProvider::make()->oauth->getAuthUrl('step2'));
-        exit;
+        $id = $repo->create([
+            'user_id' => $_SESSION['user_id'], 'google_account_id' => $profile['id'], 'email' => $profile['email'],
+            'access_token_encrypted' => null,
+            'refresh_token_encrypted' => null,
+            'token_expiry' => $expiry, 'scopes' => $scopes, 'status' => 'connected',
+        ]);
+        $repo->updateDriveTokens($id, Encryption::encrypt($tokens['access_token']),
+            Encryption::encrypt($tokens['refresh_token']), $expiry);
+        $_SESSION['pending_google_account_id'] = $id;
     }
+
+    header('Location: ' . GoogleProvider::make()->oauth->getAuthUrl('step2'));
+    exit;
+}
+
+  
 
     // step2: YouTube scope grant ho gayi — cumulative token save karein.
     $accountId = (int) ($_SESSION['pending_google_account_id'] ?? 0);

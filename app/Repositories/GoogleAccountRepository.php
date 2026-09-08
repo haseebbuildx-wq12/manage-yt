@@ -48,7 +48,17 @@ final class GoogleAccountRepository {
         ]);
         return (int) $this->db->lastInsertId();
     }
-
+    public function updateDriveTokens(int $id, string $accessTokenEncrypted, ?string $refreshTokenEncrypted, string $tokenExpiry): void {
+    $sql = 'UPDATE google_accounts SET drive_access_token_encrypted = :access, drive_token_expiry = :expiry';
+    $params = ['access' => $accessTokenEncrypted, 'expiry' => $tokenExpiry, 'id' => $id];
+    if ($refreshTokenEncrypted !== null) {
+        $sql .= ', drive_refresh_token_encrypted = :refresh';
+        $params['refresh'] = $refreshTokenEncrypted;
+    }
+    $sql .= ' WHERE id = :id';
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute($params);
+    }
     public function updateTokens(int $id, string $accessTokenEncrypted, ?string $refreshTokenEncrypted, string $tokenExpiry, array $scopes): void {
         $sql = 'UPDATE google_accounts SET access_token_encrypted = :access, token_expiry = :expiry, scopes = :scopes, token_updated_at = NOW(), status = "connected"';
         $params = ['access' => $accessTokenEncrypted, 'expiry' => $tokenExpiry, 'scopes' => json_encode($scopes), 'id' => $id];
