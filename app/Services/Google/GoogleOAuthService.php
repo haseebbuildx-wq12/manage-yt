@@ -7,44 +7,50 @@ use Google\Client;
 use Google\Service\Oauth2;
 
 final class GoogleOAuthService {
-    public const SCOPES = [
-        'openid',
-        'email',
-        'profile',
-        'https://www.googleapis.com/auth/youtube',
-        // 'https://www.googleapis.com/auth/yt-analytics.readonly',
+    public const SCOPES_STEP1 = [
+        'openid', 'email', 'profile',
         'https://www.googleapis.com/auth/drive.file',
     ];
+    public const SCOPES_STEP2 = [
+        'https://www.googleapis.com/auth/youtube',
+    ];
 
-    public static function client(): Client {
+    public static function client(array $scopes = []): Client {
         $client = new Client();
         $client->setClientId((string) Env::get('GOOGLE_CLIENT_ID'));
         $client->setClientSecret((string) Env::get('GOOGLE_CLIENT_SECRET'));
         $client->setRedirectUri((string) Env::get('GOOGLE_REDIRECT_URI'));
-        $client->setScopes(self::SCOPES);
+        if ($scopes) $client->setScopes($scopes);
         $client->setAccessType('offline');
         $client->setPrompt('consent');
+        // $client->setIncludeGrantedScopes(true);
         return $client;
     }
 
-    public function getAuthUrl(): string {
-        return self::client()->createAuthUrl();
+    public function getAuthUrl(string $step = 'step1'): string {
+        $scopes = $step === 'step2' ? self::SCOPES_STEP2 : self::SCOPES_STEP1;
+        $client = self::client($scopes);
+        $client->setState($step);
+        return $client->createAuthUrl();
     }
 
-    /** @return array{tokens: array, profile: array} */
-    public function handleCallback(string $code): array {
-        $client = self::client();
+    /** @return array{tokens: array, profile: ?array} */
+    public function handleCallback(string $code, string $step): array {
+        $scopes = $step === 'step2' ? self::SCOPES_STEP2 : self::SCOPES_STEP1;
+        $client = self::client($scopes);
         $tokens = $client->fetchAccessTokenWithAuthCode($code);
         if (isset($tokens['error'])) {
             throw new \RuntimeException('Google OAuth error: ' . $tokens['error']);
         }
-        $client->setAccessToken($tokens);
-        $oauth2 = new Oauth2($client);
-        $userInfo = $oauth2->userinfo->get();
 
-        return [
-            'tokens' => $tokens,
-            'profile' => ['id' => $userInfo->getId(), 'email' => $userInfo->getEmail()],
-        ];
+        $profile = null;
+        if ($step === 'step1') {
+            $client->setAccessToken($tokens);
+            $oauth2 = new Oauth2($client);
+            $userInfo = $oauth2->userinfo->get();
+            $profile = ['id' => $userInfo->getId(), 'email' => $userInfo->getEmail()];
+        }
+
+        return ['tokens' => $tokens, 'profile' => $profile];
     }
 }
