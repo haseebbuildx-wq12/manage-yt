@@ -1,5 +1,6 @@
 <?php
-require __DIR__ . '/../app/bootstrap.php';
+// require __DIR__ . '/../app/bootstrap.php';
+require __DIR__ . '/app/bootstrap.php';
 use App\Core\Database;
 
 $name = 'Admin';
