@@ -12,7 +12,7 @@ final class GoogleOAuthService {
         'email',
         'profile',
         'https://www.googleapis.com/auth/youtube',
-        'https://www.googleapis.com/auth/yt-analytics.readonly',
+        // 'https://www.googleapis.com/auth/yt-analytics.readonly',
         'https://www.googleapis.com/auth/drive.file',
     ];
 
