@@ -34,6 +34,11 @@ final class Application {
         $router->get('/research', [\App\Controllers\ResearchController::class, 'index']);
         $router->get('/settings', [\App\Controllers\SettingsController::class, 'index']);
         $router->post('/settings', [\App\Controllers\SettingsController::class, 'update']);
+        $router->get('/google/connect', [\App\Controllers\GoogleController::class, 'connect']);
+        $router->get('/google/callback', [\App\Controllers\GoogleController::class, 'callback']);
+        $router->post('/google/disconnect', [\App\Controllers\GoogleController::class, 'disconnect']);
+        $router->get('/channels/available', [\App\Controllers\ChannelController::class, 'available']);
+        $router->post('/channels/connect', [\App\Controllers\ChannelController::class, 'connect']);
         $router->get('/forgot-password', [AuthController::class, 'forgotPassword']);
 
         $response = $router->dispatch($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/');

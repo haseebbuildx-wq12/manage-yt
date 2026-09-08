@@ -1,7 +1,86 @@
 <?php
 declare(strict_types=1);
 namespace App\Controllers;
+
 use App\Core\Controller;
+use App\Core\Csrf;
+use App\Core\Encryption;
+use App\Middleware\AuthMiddleware;
+use App\Providers\Google\GoogleProvider;
+use App\Repositories\GoogleAccountRepository;
+
 final class GoogleController extends Controller {
-    // TODO: Implement GoogleController endpoints in the designated project phase.
+    public function connect(): void {
+        AuthMiddleware::check();
+        header('Location: ' . GoogleProvider::make()->oauth->getAuthUrl());
+        exit;
+    }
+
+    public function callback(): void {
+        AuthMiddleware::check();
+
+        if (!empty($_GET['error'])) {
+            header('Location: /channels?google_error=' . urlencode((string) $_GET['error']));
+            exit;
+        }
+        $code = $_GET['code'] ?? null;
+        if (!$code) {
+            header('Location: /channels?google_error=missing_code');
+            exit;
+        }
+
+        try {
+            $result = GoogleProvider::make()->oauth->handleCallback($code);
+        } catch (\Throwable $e) {
+            header('Location: /channels?google_error=oauth_failed');
+            exit;
+        }
+
+        $tokens = $result['tokens'];
+        $profile = $result['profile'];
+        $repo = GoogleAccountRepository::make();
+        $existing = $repo->findByUserAndGoogleId((int) $_SESSION['user_id'], $profile['id']);
+        $expiry = date('Y-m-d H:i:s', time() + (int) ($tokens['expires_in'] ?? 3600));
+        $scopes = explode(' ', $tokens['scope'] ?? '');
+
+        if ($existing) {
+            $repo->updateTokens(
+                (int) $existing['id'],
+                Encryption::encrypt($tokens['access_token']),
+                isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null,
+                $expiry, $scopes
+            );
+        } else {
+            if (empty($tokens['refresh_token'])) {
+                header('Location: /channels?google_error=no_refresh_token');
+                exit;
+            }
+            $repo->create([
+                'user_id' => $_SESSION['user_id'],
+                'google_account_id' => $profile['id'],
+                'email' => $profile['email'],
+                'access_token_encrypted' => Encryption::encrypt($tokens['access_token']),
+                'refresh_token_encrypted' => Encryption::encrypt($tokens['refresh_token']),
+                'token_expiry' => $expiry,
+                'scopes' => $scopes,
+                'status' => 'connected',
+            ]);
+        }
+
+        header('Location: /channels/available');
+        exit;
+    }
+
+    public function disconnect(): void {
+        AuthMiddleware::check();
+        if (!Csrf::verify($_POST['_csrf'] ?? null)) { header('Location: /channels'); exit; }
+        $id = (int) ($_POST['google_account_id'] ?? 0);
+        $repo = GoogleAccountRepository::make();
+        $account = $repo->find($id);
+        if ($account && (int) $account['user_id'] === (int) $_SESSION['user_id']) {
+            $repo->updateStatus($id, 'disconnected');
+        }
+        header('Location: /channels');
+        exit;
+    }
 }
