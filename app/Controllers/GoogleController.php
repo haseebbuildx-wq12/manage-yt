@@ -10,66 +10,76 @@ use App\Providers\Google\GoogleProvider;
 use App\Repositories\GoogleAccountRepository;
 
 final class GoogleController extends Controller {
-    public function connect(): void {
-        AuthMiddleware::check();
-        header('Location: ' . GoogleProvider::make()->oauth->getAuthUrl());
+public function connect(): void {
+    AuthMiddleware::check();
+    header('Location: ' . GoogleProvider::make()->oauth->getAuthUrl('step1'));
+    exit;
+}
+
+public function callback(): void {
+    AuthMiddleware::check();
+
+    if (!empty($_GET['error'])) {
+        header('Location: /channels?google_error=' . urlencode((string) $_GET['error']));
+        exit;
+    }
+    $code = $_GET['code'] ?? null;
+    $state = $_GET['state'] ?? 'step1';
+    if (!$code) {
+        header('Location: /channels?google_error=missing_code');
         exit;
     }
 
-    public function callback(): void {
-        AuthMiddleware::check();
+    try {
+        $result = GoogleProvider::make()->oauth->handleCallback($code, $state);
+    } catch (\Throwable $e) {
+        header('Location: /channels?google_error=oauth_failed');
+        exit;
+    }
 
-        if (!empty($_GET['error'])) {
-            header('Location: /channels?google_error=' . urlencode((string) $_GET['error']));
-            exit;
-        }
-        $code = $_GET['code'] ?? null;
-        if (!$code) {
-            header('Location: /channels?google_error=missing_code');
-            exit;
-        }
+    $tokens = $result['tokens'];
+    $repo = GoogleAccountRepository::make();
+    $expiry = date('Y-m-d H:i:s', time() + (int) ($tokens['expires_in'] ?? 3600));
+    $scopes = explode(' ', $tokens['scope'] ?? '');
 
-        try {
-            $result = GoogleProvider::make()->oauth->handleCallback($code);
-        } catch (\Throwable $e) {
-            header('Location: /channels?google_error=oauth_failed');
-            exit;
-        }
-
-        $tokens = $result['tokens'];
+    if ($state === 'step1') {
         $profile = $result['profile'];
-        $repo = GoogleAccountRepository::make();
         $existing = $repo->findByUserAndGoogleId((int) $_SESSION['user_id'], $profile['id']);
-        $expiry = date('Y-m-d H:i:s', time() + (int) ($tokens['expires_in'] ?? 3600));
-        $scopes = explode(' ', $tokens['scope'] ?? '');
 
         if ($existing) {
-            $repo->updateTokens(
-                (int) $existing['id'],
-                Encryption::encrypt($tokens['access_token']),
-                isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null,
-                $expiry, $scopes
-            );
+            $repo->updateTokens((int) $existing['id'], Encryption::encrypt($tokens['access_token']),
+                isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null, $expiry, $scopes);
+            $_SESSION['pending_google_account_id'] = $existing['id'];
         } else {
             if (empty($tokens['refresh_token'])) {
                 header('Location: /channels?google_error=no_refresh_token');
                 exit;
             }
-            $repo->create([
-                'user_id' => $_SESSION['user_id'],
-                'google_account_id' => $profile['id'],
-                'email' => $profile['email'],
+            $id = $repo->create([
+                'user_id' => $_SESSION['user_id'], 'google_account_id' => $profile['id'], 'email' => $profile['email'],
                 'access_token_encrypted' => Encryption::encrypt($tokens['access_token']),
                 'refresh_token_encrypted' => Encryption::encrypt($tokens['refresh_token']),
-                'token_expiry' => $expiry,
-                'scopes' => $scopes,
-                'status' => 'connected',
+                'token_expiry' => $expiry, 'scopes' => $scopes, 'status' => 'connected',
             ]);
+            $_SESSION['pending_google_account_id'] = $id;
         }
 
-        header('Location: /channels/available');
+        // Ab dusra consent step: YouTube scope alag se maango.
+        header('Location: ' . GoogleProvider::make()->oauth->getAuthUrl('step2'));
         exit;
     }
+
+    // step2: YouTube scope grant ho gayi — cumulative token save karein.
+    $accountId = (int) ($_SESSION['pending_google_account_id'] ?? 0);
+    if ($accountId) {
+        $repo->updateTokens($accountId, Encryption::encrypt($tokens['access_token']),
+            isset($tokens['refresh_token']) ? Encryption::encrypt($tokens['refresh_token']) : null, $expiry, $scopes);
+    }
+    unset($_SESSION['pending_google_account_id']);
+
+    header('Location: /channels/available');
+    exit;
+}
 
     public function disconnect(): void {
         AuthMiddleware::check();
