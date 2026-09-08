@@ -1,0 +1,6 @@
+.channel-avatar { width:40px; height:40px; border-radius:50%; object-fit:cover; background:var(--surface-2); display:inline-flex; align-items:center; justify-content:center; font-weight:700; color:var(--text); border:1px solid #2a3350; }
+.channel-avatar.sm { width:28px; height:28px; font-size:12px; }
+.channel-avatar.lg { width:64px; height:64px; font-size:22px; }
+.channel-avatar-group { display:flex; }
+.channel-avatar-group .channel-avatar { margin-left:-10px; border:2px solid var(--surface); }
+.channel-avatar-group .channel-avatar:first-child { margin-left:0; }

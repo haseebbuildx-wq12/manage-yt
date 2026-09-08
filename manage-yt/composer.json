@@ -1,0 +1,21 @@
+{
+  "name": "mccm/multi-channel-content-manager",
+  "description": "Modular multi-channel YouTube content manager for PHP shared hosting.",
+  "type": "project",
+  "require": {
+    "php": "^8.2",
+    "google/apiclient": "^2.18"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    },
+    "files": [
+      "app/Helpers/functions.php"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

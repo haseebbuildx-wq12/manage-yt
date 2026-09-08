@@ -1,0 +1,7 @@
+.btn { border:0; border-radius:10px; padding:10px 15px; color:white; cursor:pointer; background:linear-gradient(135deg,var(--accent-2),var(--accent)); font-weight:600; transition:opacity .15s; }
+.btn:hover { opacity:.9; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
+.btn-secondary { background:var(--surface-2); color:var(--text); border:1px solid #2a3350; }
+.btn-outline { background:transparent; border:1px solid var(--accent); color:var(--accent); }
+.btn-sm { padding:6px 10px; font-size:13px; border-radius:8px; }
+.btn-danger { background:#dc2626; }

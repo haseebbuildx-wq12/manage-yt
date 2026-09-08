@@ -1,0 +1,10 @@
+.env
+/storage/logs/*
+/storage/cache/*
+/storage/temp/*
+!/storage/logs/.gitkeep
+!/storage/cache/.gitkeep
+!/storage/temp/.gitkeep
+/vendor/*
+!/vendor/autoload.php
+!/vendor/README.md

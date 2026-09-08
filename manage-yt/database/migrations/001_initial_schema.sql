@@ -1,0 +1,1 @@
+-- TODO: Keep migration history synchronized with database/schema.sql. Initial schema is distributed as database/schema.sql.

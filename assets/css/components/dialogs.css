@@ -1,0 +1,6 @@
+/* Confirmation dialogs reuse .modal-backdrop / .modal from modals.css */
+.confirm-dialog .modal { max-width:400px; }
+.confirm-dialog .confirm-icon { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:12px; font-size:20px; }
+.confirm-dialog.danger .confirm-icon { background:rgba(239,68,68,.15); color:#f87171; }
+.confirm-dialog.warning .confirm-icon { background:rgba(234,179,8,.15); color:#fbbf24; }
+.confirm-dialog .confirm-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }

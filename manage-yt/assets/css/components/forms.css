@@ -1,0 +1,5 @@
+label { display:block; margin-bottom:6px; font-size:13px; color:var(--muted); }
+.form-group { margin-bottom:16px; }
+.form-control { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #252e47; background:#0d1324; color:var(--text); }
+.form-control:focus { outline:none; border-color:var(--accent); }
+.form-hint { font-size:12px; color:var(--muted); margin-top:4px; }
